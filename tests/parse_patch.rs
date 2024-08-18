@@ -285,3 +285,47 @@ fn test_parse_triple_plus_minus_hack() {
 
     assert_eq!(format!("{}\n", patch), sample);
 }
+
+#[test]
+fn single_binary_diff() {
+    let sample = "Binary files old.bin and new.bin differ\n";
+
+    let patch = Patch::from_single(sample).unwrap();
+    assert_eq!(patch.old.path, "old.bin");
+    assert_eq!(patch.old.meta, None);
+    assert_eq!(patch.new.path, "new.bin");
+    assert_eq!(patch.new.meta, None);
+    assert_eq!(patch.hunks, []);
+}
+
+#[test]
+fn multiple_binary_diffs() {
+    let sample = "Binary files old.bin and new.bin differ
+Binary files old1.bin and new1.bin differ
+";
+    let patches = Patch::from_multiple(sample).unwrap();
+    assert_eq!(patches.len(), 2);
+    assert_eq!(patches[0].old.path, "old.bin");
+    assert_eq!(patches[1].old.path, "old1.bin");
+}
+
+#[test]
+fn binary_diff_with_text_diff() {
+    let sample = "\
+--- before.py
++++ after.py
+@@ -1,4 +1,4 @@
+-bacon
+-eggs
+-ham
++python
++eggy
++hamster
+ guido
+Binary files old.bin and new.bin differ
+";
+    let patches = Patch::from_multiple(sample).unwrap();
+    assert_eq!(patches.len(), 2);
+    assert_eq!(patches[0].old.path, "before.py");
+    assert_eq!(patches[1].old.path, "old.bin");
+}
