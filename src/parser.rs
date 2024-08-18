@@ -134,7 +134,6 @@ fn binary_files_differ(input: Input<'_>) -> IResult<Input<'_>, Patch> {
             line_ending,
         ),
     )(input)?;
-    dbg!(&old, &new);
     Ok((
         input,
         Patch {
