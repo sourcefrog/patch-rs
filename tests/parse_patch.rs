@@ -287,6 +287,18 @@ fn test_parse_triple_plus_minus_hack() {
 }
 
 #[test]
+fn binary_diff_with_spaces_in_name() {
+    let sample = "Binary files an old binary and a new binary differ\n";
+
+    let patch = Patch::from_single(sample).unwrap();
+    assert_eq!(patch.old.path, "an old binary");
+    assert_eq!(patch.old.meta, None);
+    assert_eq!(patch.new.path, "a new binary");
+    assert_eq!(patch.new.meta, None);
+    assert_eq!(patch.hunks, []);
+}
+
+#[test]
 fn single_binary_diff() {
     let sample = "Binary files old.bin and new.bin differ\n";
 
