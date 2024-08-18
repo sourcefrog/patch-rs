@@ -126,7 +126,7 @@ fn binary_files_differ(input: Input<'_>) -> IResult<Input<'_>, Patch> {
         "Binary file line",
         delimited(
             tag("Binary files "),
-            map_opt(take_until(" differ\n"), |names: Input<'_>| {
+            map_opt(take_until(" differ"), |names: Input<'_>| {
                 names.split_once(" and ")
             }),
             pair(tag(" differ"), line_ending),
