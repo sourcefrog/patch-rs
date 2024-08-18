@@ -299,6 +299,21 @@ fn binary_diff_with_crlf() {
 }
 
 #[test]
+fn binary_diff_with_ambiguous_names() {
+    // The main goal here is that this doesn't crash or error:
+    // the format with quotes means for some names there is no
+    // unambiguous meaning.
+    let sample = "Binary files a differ program and a patcher binary and a wiggler differ\r\n";
+
+    let patch = Patch::from_single(sample).unwrap();
+    assert_eq!(patch.old.path, "a differ program");
+    assert_eq!(patch.old.meta, None);
+    assert_eq!(patch.new.path, "a patcher binary and a wiggler");
+    assert_eq!(patch.new.meta, None);
+    assert_eq!(patch.hunks, []);
+}
+
+#[test]
 fn binary_diff_with_spaces_in_name() {
     let sample = "Binary files an old binary and a new binary differ\n";
 

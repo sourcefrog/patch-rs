@@ -10,7 +10,7 @@ use nom::{
     combinator::{map, map_opt, not, opt},
     error::context,
     multi::{many0, many1},
-    sequence::{delimited, pair, preceded, terminated, tuple},
+    sequence::{delimited, preceded, terminated, tuple},
 };
 
 use crate::ast::*;
@@ -119,17 +119,19 @@ fn patch(input: Input<'_>) -> IResult<Input<'_>, Patch> {
 
 /// Recognize a "binary files XX and YY differ" line as an empty patch.
 fn binary_files_differ(input: Input<'_>) -> IResult<Input<'_>, Patch> {
-    // let (input, _) = context("Binary file line", tag("Binary files "))(input)?;
     // The names aren't quoted so this seems to require lookahead and then
     // parsing the identified string.
     let (input, (old, new)) = context(
         "Binary file line",
         delimited(
             tag("Binary files "),
-            map_opt(take_until(" differ"), |names: Input<'_>| {
-                names.split_once(" and ")
+            map_opt(take_until("\n"), |names: Input<'_>| {
+                names
+                    .trim_end()
+                    .strip_suffix(" differ")
+                    .and_then(|s| s.split_once(" and "))
             }),
-            pair(tag(" differ"), line_ending),
+            line_ending,
         ),
     )(input)?;
     dbg!(&old, &new);
